@@ -1,6 +1,7 @@
 mod camera;
 mod db;
 mod db_client;
+mod humanoid;
 use bevy::{diagnostic::FrameTimeDiagnosticsPlugin, prelude::*};
 use bevy_atmosphere::prelude::*;
 use bevy_framepace::{FramepacePlugin, FramepaceSettings, Limiter};
@@ -8,6 +9,7 @@ use bevy_prototype_debug_lines::DebugLinesPlugin;
 use bevy_rapier3d::prelude::*;
 use camera::*;
 use db_client::DbClientResource;
+use humanoid::humanoid_start_system;
 
 fn rapier_config_start_system(mut c: ResMut<RapierContext>) {
     c.integration_parameters.max_velocity_iterations = 512;
@@ -32,7 +34,7 @@ fn main() {
         .insert_resource(DbClientResource::default())
         // .insert_resource(DqnResource::default())
         .insert_resource(WindowDescriptor {
-            title: "car sim deep learning".to_string(),
+            title: "humanoid deep learning".to_string(),
             width: 1024.,
             height: 768.,
             ..default()
@@ -44,6 +46,7 @@ fn main() {
         .add_plugin(AtmospherePlugin)
         .add_plugin(FramepacePlugin)
         .add_startup_system(camera_start_system)
+        .add_startup_system(humanoid_start_system)
         .add_system(camera_controller_system)
         .add_system(camera_switch_system)
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
