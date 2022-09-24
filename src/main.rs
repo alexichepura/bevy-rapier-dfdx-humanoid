@@ -16,8 +16,8 @@ use humanoid::*;
 use light::*;
 
 fn rapier_config_start_system(mut c: ResMut<RapierContext>) {
-    c.integration_parameters.max_velocity_iterations = 512;
-    c.integration_parameters.max_stabilization_iterations = 512;
+    c.integration_parameters.max_velocity_iterations = 128;
+    c.integration_parameters.max_stabilization_iterations = 128;
     dbg!(c.integration_parameters);
 }
 
