@@ -9,7 +9,7 @@ pub struct HID;
 pub fn camera_start_system(mut commands: Commands) {
     commands
         .spawn_bundle(Camera3dBundle {
-            transform: Transform::from_translation(Vec3::new(-5., 1., 0.)),
+            transform: Transform::from_translation(Vec3::new(0., 1., 5.)),
             // .looking_at(Vec3::Y * 1., Vec3::ZERO)
             ..default()
         })
