@@ -8,23 +8,20 @@ pub fn ground_start_system(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    let multiplier: usize = 10;
-    let scale = 28. / multiplier as f32;
-    let num_cols: usize = 2 * multiplier;
-    let num_rows: usize = 3 * multiplier;
-    let hx = num_cols as f32 * scale;
-    let hy = 0.5;
-    let hz = num_rows as f32 * scale;
-    let ground_size: Vec3 = 2. * Vec3::new(hx, hy, hz);
+    let num_cols: usize = 10;
+    let num_rows: usize = 10;
+    let hx = 10.;
+    let hy = 0.;
+    let hz = 10.;
     let heights: Vec<Real> = vec![hy; num_rows * num_cols];
     commands
         .spawn()
-        .insert(Name::new("ground-heightfield"))
+        .insert(Name::new("ground"))
         .insert_bundle(PbrBundle {
             mesh: meshes.add(Mesh::from(shape::Box {
                 max_x: hx,
                 min_x: -hx,
-                max_y: hy,
+                max_y: 0.,
                 min_y: -hy,
                 max_z: hz,
                 min_z: -hz,
@@ -33,16 +30,12 @@ pub fn ground_start_system(
             ..default()
         })
         .insert(RigidBody::Fixed)
-        .insert_bundle(TransformBundle::from_transform(Transform::from_xyz(
-            0.,
-            -2. * hy,
-            0.,
-        )))
+        .insert_bundle(TransformBundle::from_transform(Transform::identity()))
         .insert(Collider::heightfield(
             heights,
             num_rows,
             num_cols,
-            ground_size.into(),
+            (2. * Vec3::new(hx, hy, hz)).into(),
         ))
         .insert(ColliderScale::Absolute(Vec3::ONE))
         .insert(CollisionGroups::new(STATIC_GROUP, u32::MAX))
