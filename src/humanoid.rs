@@ -1,8 +1,17 @@
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
 
-pub fn humanoid_start_system(mut commands: Commands) {
-    spawn_humanoid(&mut commands, Transform::from_xyz(0., 1., 0.));
+pub fn humanoid_start_system(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+) {
+    spawn_humanoid(
+        &mut commands,
+        &mut meshes,
+        &mut materials,
+        Transform::from_xyz(0., 1., 0.),
+    );
 }
 
 #[derive(Debug, Clone)]
@@ -12,7 +21,12 @@ pub struct BodySize {
     pub hl: f32,
 }
 
-pub fn spawn_humanoid(commands: &mut Commands, transform: Transform) -> Entity {
+pub fn spawn_humanoid(
+    commands: &mut Commands,
+    meshes: &mut ResMut<Assets<Mesh>>,
+    materials: &mut ResMut<Assets<StandardMaterial>>,
+    transform: Transform,
+) -> Entity {
     let body_size = BodySize {
         hw: 0.2,
         hh: 0.3,
@@ -23,11 +37,18 @@ pub fn spawn_humanoid(commands: &mut Commands, transform: Transform) -> Entity {
         .spawn()
         .insert(Name::new("humanoid"))
         .insert(Sleeping::disabled())
-        // .insert_bundle(PbrBundle {
-        //     mesh: meshes.add(bevy_mesh(Cylinder::new(wheel_hw, wheel_r).to_trimesh(50))),
-        //     material: materials.add(Color::rgba(0.1, 0.1, 0.1, 0.7).into()),
-        //     ..default()
-        // })
+        .insert_bundle(PbrBundle {
+            mesh: meshes.add(Mesh::from(shape::Box {
+                max_x: body_size.hw,
+                min_x: -body_size.hw,
+                max_y: body_size.hh,
+                min_y: -body_size.hh,
+                max_z: body_size.hl,
+                min_z: -body_size.hl,
+            })),
+            material: materials.add(Color::rgba(0.3, 0.2, 0.2, 0.5).into()),
+            ..default()
+        })
         .insert(RigidBody::Dynamic)
         .insert(Ccd::enabled())
         // .insert(Damping {

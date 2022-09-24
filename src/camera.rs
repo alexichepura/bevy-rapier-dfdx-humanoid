@@ -9,7 +9,7 @@ pub struct HID;
 pub fn camera_start_system(mut commands: Commands) {
     commands
         .spawn_bundle(Camera3dBundle {
-            transform: Transform::from_translation(Vec3::new(0., 1., 5.)),
+            transform: Transform::from_translation(Vec3::new(0., 0.2, 2.)),
             // .looking_at(Vec3::Y * 1., Vec3::ZERO)
             ..default()
         })
@@ -47,7 +47,7 @@ impl Default for CameraController {
     fn default() -> Self {
         Self {
             enabled: true,
-            sensitivity: 0.5,
+            sensitivity: 0.4,
             key_forward: KeyCode::W,
             key_back: KeyCode::S,
             key_left: KeyCode::A,
@@ -55,8 +55,8 @@ impl Default for CameraController {
             key_up: KeyCode::E,
             key_down: KeyCode::Q,
             key_run: KeyCode::LShift,
-            walk_speed: 10.0,
-            run_speed: 100.0,
+            walk_speed: 1.0,
+            run_speed: 10.0,
             friction: 0.5,
             pitch: 0.0,
             yaw: 0.0,

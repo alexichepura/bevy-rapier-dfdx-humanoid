@@ -33,7 +33,11 @@ pub fn ground_start_system(
             ..default()
         })
         .insert(RigidBody::Fixed)
-        .insert_bundle(TransformBundle::default())
+        .insert_bundle(TransformBundle::from_transform(Transform::from_xyz(
+            0.,
+            -2. * hy,
+            0.,
+        )))
         .insert(Collider::heightfield(
             heights,
             num_rows,
