@@ -1,0 +1,19 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:../dev.db"
+}
+
+generator client {
+  provider = "cargo prisma"
+  output   = "../src/db.rs"
+}
+
+model Rb {
+  id         String   @id @default(cuid())
+  created_at DateTime @default(now())
+  state      String
+  action     Int
+  reward     Float
+  next_state String
+  done       Boolean
+}
