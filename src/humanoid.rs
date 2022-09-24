@@ -114,6 +114,13 @@ impl BodyPartPbrBundle for PbrBundle {
     }
 }
 
+pub fn get_dir_unit(i: usize) -> f32 {
+    match i {
+        0 => 1.,
+        _ => -1.,
+    }
+}
+
 pub fn get_collider(size: &BodySize) -> Collider {
     Collider::round_cuboid(
         size.hw - size.br,
@@ -225,14 +232,7 @@ pub fn spawn_humanoid(
                 GenericJointBuilder::new(body_femur_joint_mask)
                     .local_axis1(Vec3::Y)
                     .local_axis2(Vec3::Y)
-                    .local_anchor1(Vec3::new(
-                        match i {
-                            0 => 0.1,
-                            _ => -0.1,
-                        },
-                        -body_size.hh,
-                        0.,
-                    ))
+                    .local_anchor1(Vec3::new(0.1 * get_dir_unit(i), -body_size.hh, 0.))
                     .local_anchor2(Vec3::new(0., femur_size.hh, 0.))
                     .build(),
             ))
@@ -352,7 +352,7 @@ pub fn spawn_humanoid(
             .insert(Name::new("upperarm"))
             .insert(Sleeping::disabled())
             .insert_bundle(PbrBundle::from_halfsize(
-                &femur_size,
+                &upperarm_size,
                 meshes,
                 materials,
                 &Color::rgba(0.2, 0.3, 0.2, 0.5),
@@ -388,14 +388,11 @@ pub fn spawn_humanoid(
                     .local_axis1(Vec3::Y)
                     .local_axis2(Vec3::Y)
                     .local_anchor1(Vec3::new(
-                        match i {
-                            0 => body_size.hw,
-                            _ => -body_size.hw,
-                        },
+                        (body_size.hw + upperarm_size.hw) * get_dir_unit(i),
                         body_size.hh,
                         0.,
                     ))
-                    .local_anchor2(Vec3::new(0., femur_size.hh, 0.))
+                    .local_anchor2(Vec3::new(0., upperarm_size.hh, 0.))
                     .build(),
             ))
             .id();
