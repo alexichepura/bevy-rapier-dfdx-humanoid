@@ -64,6 +64,7 @@ pub fn spawn_humanoid(
             children
                 .spawn()
                 .insert(Name::new("car_collider"))
+                .insert_bundle(TransformBundle::from(Transform::identity()))
                 .insert(Collider::round_cuboid(
                     body_size.hw - body_border_radius,
                     body_size.hh - body_border_radius,
@@ -77,7 +78,12 @@ pub fn spawn_humanoid(
                 .insert(CollidingEntities::default())
                 .insert(ActiveEvents::COLLISION_EVENTS)
                 .insert(ContactForceEventThreshold(0.1))
-                .insert(ColliderMassProperties::Density(1.0));
+                .insert(ColliderMassProperties::MassProperties(MassProperties {
+                    mass: 20.0,
+                    principal_inertia: Vec3::new(50., 20., 50.),
+                    ..default()
+                }));
+            // .insert(ColliderMassProperties::Density(1.0));
         })
         .id();
     return humanoid_id;
