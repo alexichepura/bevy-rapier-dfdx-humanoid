@@ -34,6 +34,14 @@ impl BodySize {
             br: 0.05,
         }
     }
+    pub fn head() -> Self {
+        Self {
+            hw: 0.1,
+            hh: 0.12,
+            hl: 0.13,
+            br: 0.05,
+        }
+    }
     pub fn femur() -> Self {
         Self {
             hw: 0.05,
@@ -177,6 +185,53 @@ pub fn spawn_humanoid(
                 }));
         })
         .id();
+
+    let head_size = BodySize::head();
+    let body_head_joint_mask = JointAxesMask::LOCKED_FIXED_AXES;
+    commands
+        .spawn()
+        .insert(Name::new("head"))
+        .insert(Sleeping::disabled())
+        .insert_bundle(PbrBundle::from_halfsize(
+            &head_size,
+            meshes,
+            materials,
+            &Color::rgba(0.3, 0.3, 0.3, 0.5),
+        ))
+        .insert(RigidBody::Dynamic)
+        .insert(Ccd::enabled())
+        .insert(Velocity::zero())
+        .insert(ExternalForce::default())
+        .insert_bundle(TransformBundle::from(transform))
+        .insert(ReadMassProperties::default())
+        .with_children(|children| {
+            children
+                .spawn()
+                .insert(Name::new("head_collider"))
+                .insert_bundle(TransformBundle::from(Transform::identity()))
+                .insert(get_collider(&head_size))
+                .insert(ColliderScale::Absolute(Vec3::ONE))
+                .insert(Friction::coefficient(0.5))
+                .insert(Restitution::coefficient(0.))
+                .insert(CollisionGroups::new(HUMANOID_TRAINING_GROUP, STATIC_GROUP))
+                .insert(CollidingEntities::default())
+                .insert(ActiveEvents::COLLISION_EVENTS)
+                .insert(ContactForceEventThreshold(0.1))
+                .insert(ColliderMassProperties::MassProperties(MassProperties {
+                    mass: 5.0,
+                    principal_inertia: Vec3::new(0.5, 0.2, 0.5),
+                    ..default()
+                }));
+        })
+        .insert(ImpulseJoint::new(
+            body_id,
+            GenericJointBuilder::new(body_head_joint_mask)
+                .local_axis1(Vec3::Y)
+                .local_axis2(Vec3::Y)
+                .local_anchor1(Vec3::new(0., body_size.hh + head_size.hh + 0.1, 0.))
+                .local_anchor2(Vec3::new(0., head_size.hh, 0.))
+                .build(),
+        ));
 
     // LEGS
     let femur_size = BodySize::femur();
