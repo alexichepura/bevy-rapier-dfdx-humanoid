@@ -46,6 +46,13 @@ impl BodySize {
             hl: 0.04,
         }
     }
+    pub fn foot() -> Self {
+        Self {
+            hw: 0.04,
+            hh: 0.02,
+            hl: 0.1,
+        }
+    }
 }
 
 trait BodyPartPbrBundle {
@@ -87,6 +94,7 @@ pub fn spawn_humanoid(
     let body_size = BodySize::body();
     let femur_size = BodySize::femur();
     let tibia_size = BodySize::tibia();
+    let foot_size = BodySize::foot();
 
     let body_id = commands
         .spawn()
@@ -262,6 +270,60 @@ pub fn spawn_humanoid(
             ))
             .id();
         tibia_entities.push(tibia_id);
+    }
+
+    let tibia_foot_joint_mask = JointAxesMask::LOCKED_FIXED_AXES;
+    for i in 0..2 {
+        commands
+            .spawn()
+            .insert(Name::new("foot"))
+            .insert(Sleeping::disabled())
+            .insert_bundle(PbrBundle::from_halfsize(
+                &foot_size,
+                meshes,
+                materials,
+                &Color::rgba(0.2, 0.2, 0.2, 0.5),
+            ))
+            .insert(RigidBody::Dynamic)
+            .insert(Ccd::enabled())
+            .insert(Velocity::zero())
+            .insert(ExternalForce::default())
+            .insert_bundle(TransformBundle::from(transform))
+            .insert(ReadMassProperties::default())
+            .with_children(|children| {
+                let foot_border_radius = 0.01;
+                children
+                    .spawn()
+                    .insert(Name::new("foot_collider"))
+                    .insert_bundle(TransformBundle::from(Transform::identity()))
+                    .insert(Collider::round_cuboid(
+                        foot_size.hw - foot_border_radius,
+                        foot_size.hh - foot_border_radius,
+                        foot_size.hl - foot_border_radius,
+                        foot_border_radius,
+                    ))
+                    .insert(ColliderScale::Absolute(Vec3::ONE))
+                    .insert(Friction::coefficient(0.5))
+                    .insert(Restitution::coefficient(0.))
+                    .insert(CollisionGroups::new(HUMANOID_TRAINING_GROUP, STATIC_GROUP))
+                    .insert(CollidingEntities::default())
+                    .insert(ActiveEvents::COLLISION_EVENTS)
+                    .insert(ContactForceEventThreshold(0.1))
+                    .insert(ColliderMassProperties::MassProperties(MassProperties {
+                        mass: 1.0,
+                        principal_inertia: Vec3::new(0.1, 0.1, 0.1),
+                        ..default()
+                    }));
+            })
+            .insert(ImpulseJoint::new(
+                tibia_entities[i],
+                GenericJointBuilder::new(tibia_foot_joint_mask)
+                    .local_axis1(Vec3::Y)
+                    .local_axis2(Vec3::Y)
+                    .local_anchor1(Vec3::new(0., -tibia_size.hh, 0.))
+                    .local_anchor2(Vec3::new(0., foot_size.hh, foot_size.hl - tibia_size.hl))
+                    .build(),
+            ));
     }
 
     return body_id;
