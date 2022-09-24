@@ -23,12 +23,17 @@ pub fn spawn_humanoid(commands: &mut Commands, transform: Transform) -> Entity {
         .spawn()
         .insert(Name::new("humanoid"))
         .insert(Sleeping::disabled())
+        // .insert_bundle(PbrBundle {
+        //     mesh: meshes.add(bevy_mesh(Cylinder::new(wheel_hw, wheel_r).to_trimesh(50))),
+        //     material: materials.add(Color::rgba(0.1, 0.1, 0.1, 0.7).into()),
+        //     ..default()
+        // })
         .insert(RigidBody::Dynamic)
         .insert(Ccd::enabled())
-        .insert(Damping {
-            linear_damping: 0.05,
-            angular_damping: 0.05,
-        })
+        // .insert(Damping {
+        //     linear_damping: 0.05,
+        //     angular_damping: 0.05,
+        // })
         .insert(Velocity::zero())
         .insert(ExternalForce::default())
         .insert_bundle(TransformBundle::from(transform))

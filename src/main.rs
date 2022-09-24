@@ -3,6 +3,7 @@ mod db;
 mod db_client;
 mod ground;
 mod humanoid;
+mod light;
 use bevy::{diagnostic::FrameTimeDiagnosticsPlugin, prelude::*};
 use bevy_atmosphere::prelude::*;
 use bevy_framepace::{FramepacePlugin, FramepaceSettings, Limiter};
@@ -11,7 +12,8 @@ use bevy_rapier3d::prelude::*;
 use camera::*;
 use db_client::DbClientResource;
 use ground::*;
-use humanoid::humanoid_start_system;
+use humanoid::*;
+use light::*;
 
 fn rapier_config_start_system(mut c: ResMut<RapierContext>) {
     c.integration_parameters.max_velocity_iterations = 512;
@@ -49,6 +51,7 @@ fn main() {
         .add_plugin(FramepacePlugin)
         .add_startup_system(ground_start_system)
         .add_startup_system(camera_start_system)
+        .add_startup_system(light_start_system)
         .add_startup_system(humanoid_start_system)
         .add_system(camera_controller_system)
         .add_system(camera_switch_system)

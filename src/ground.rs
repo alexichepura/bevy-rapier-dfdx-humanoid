@@ -29,7 +29,7 @@ pub fn ground_start_system(
                 max_z: hz,
                 min_z: -hz,
             })),
-            material: materials.add(Color::rgb(0.2, 0.5, 0.2).into()),
+            material: materials.add(Color::rgb(0.2, 0.4, 0.15).into()),
             ..default()
         })
         .insert(RigidBody::Fixed)
