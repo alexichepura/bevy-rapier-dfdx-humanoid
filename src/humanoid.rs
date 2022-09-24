@@ -86,47 +86,6 @@ pub fn spawn_humanoid(
     let femur_size = BodySize::femur();
     // let tibia_size = BodySize::tibia();
 
-    let mut femur_entities: Vec<Entity> = vec![];
-    femur_entities.push(
-        commands
-            .spawn()
-            .insert(Name::new("femur"))
-            .insert(Sleeping::disabled())
-            .insert_bundle(PbrBundle::from_halfsize(&femur_size, meshes, materials))
-            .insert(RigidBody::Dynamic)
-            .insert(Ccd::enabled())
-            .insert(Velocity::zero())
-            .insert(ExternalForce::default())
-            .insert_bundle(TransformBundle::from(transform))
-            .insert(ReadMassProperties::default())
-            .with_children(|children| {
-                let femur_border_radius = 0.02;
-                children
-                    .spawn()
-                    .insert(Name::new("femur_collider"))
-                    .insert_bundle(TransformBundle::from(Transform::identity()))
-                    .insert(Collider::round_cuboid(
-                        femur_size.hw - femur_border_radius,
-                        femur_size.hh - femur_border_radius,
-                        femur_size.hl - femur_border_radius,
-                        femur_border_radius,
-                    ))
-                    .insert(ColliderScale::Absolute(Vec3::ONE))
-                    .insert(Friction::coefficient(0.5))
-                    .insert(Restitution::coefficient(0.))
-                    .insert(CollisionGroups::new(HUMANOID_TRAINING_GROUP, STATIC_GROUP))
-                    .insert(CollidingEntities::default())
-                    .insert(ActiveEvents::COLLISION_EVENTS)
-                    .insert(ContactForceEventThreshold(0.1))
-                    .insert(ColliderMassProperties::MassProperties(MassProperties {
-                        mass: 5.0,
-                        principal_inertia: Vec3::new(0.5, 0.2, 0.5),
-                        ..default()
-                    }));
-            })
-            .id(),
-    );
-
     let humanoid_id = commands
         .spawn()
         .insert(Name::new("humanoid"))
@@ -177,16 +136,59 @@ pub fn spawn_humanoid(
     // JointAxesMask::ANG_Y
     // | JointAxesMask::ANG_Z;
 
-    for femur_id in femur_entities.iter() {
-        commands.entity(*femur_id).insert(ImpulseJoint::new(
-            humanoid_id,
-            GenericJointBuilder::new(body_femur_joint_mask)
-                .local_axis1(Vec3::Y)
-                .local_axis2(Vec3::Y)
-                .local_anchor1(Vec3::new(0., -body_size.hh, 0.))
-                .local_anchor2(Vec3::new(0., femur_size.hh, 0.))
-                .build(),
-        ));
+    for i in 0..2 {
+        commands
+            .spawn()
+            .insert(Name::new("femur"))
+            .insert(Sleeping::disabled())
+            .insert_bundle(PbrBundle::from_halfsize(&femur_size, meshes, materials))
+            .insert(RigidBody::Dynamic)
+            .insert(Ccd::enabled())
+            .insert(Velocity::zero())
+            .insert(ExternalForce::default())
+            .insert_bundle(TransformBundle::from(transform))
+            .insert(ReadMassProperties::default())
+            .with_children(|children| {
+                let femur_border_radius = 0.02;
+                children
+                    .spawn()
+                    .insert(Name::new("femur_collider"))
+                    .insert_bundle(TransformBundle::from(Transform::identity()))
+                    .insert(Collider::round_cuboid(
+                        femur_size.hw - femur_border_radius,
+                        femur_size.hh - femur_border_radius,
+                        femur_size.hl - femur_border_radius,
+                        femur_border_radius,
+                    ))
+                    .insert(ColliderScale::Absolute(Vec3::ONE))
+                    .insert(Friction::coefficient(0.5))
+                    .insert(Restitution::coefficient(0.))
+                    .insert(CollisionGroups::new(HUMANOID_TRAINING_GROUP, STATIC_GROUP))
+                    .insert(CollidingEntities::default())
+                    .insert(ActiveEvents::COLLISION_EVENTS)
+                    .insert(ContactForceEventThreshold(0.1))
+                    .insert(ColliderMassProperties::MassProperties(MassProperties {
+                        mass: 5.0,
+                        principal_inertia: Vec3::new(0.5, 0.2, 0.5),
+                        ..default()
+                    }));
+            })
+            .insert(ImpulseJoint::new(
+                humanoid_id,
+                GenericJointBuilder::new(body_femur_joint_mask)
+                    .local_axis1(Vec3::Y)
+                    .local_axis2(Vec3::Y)
+                    .local_anchor1(Vec3::new(
+                        match i {
+                            0 => 0.1,
+                            _ => -0.1,
+                        },
+                        -body_size.hh,
+                        0.,
+                    ))
+                    .local_anchor2(Vec3::new(0., femur_size.hh, 0.))
+                    .build(),
+            ));
     }
 
     return humanoid_id;
