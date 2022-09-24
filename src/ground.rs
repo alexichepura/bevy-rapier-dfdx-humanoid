@@ -8,8 +8,8 @@ pub fn ground_start_system(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    let num_cols: usize = 10;
-    let num_rows: usize = 10;
+    let num_cols: usize = 20;
+    let num_rows: usize = 20;
     let hx = 10.;
     let hy = 0.;
     let hz = 10.;
@@ -21,7 +21,7 @@ pub fn ground_start_system(
             mesh: meshes.add(Mesh::from(shape::Box {
                 max_x: hx,
                 min_x: -hx,
-                max_y: 0.,
+                max_y: hy,
                 min_y: -hy,
                 max_z: hz,
                 min_z: -hz,
